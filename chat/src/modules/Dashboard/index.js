@@ -73,11 +73,15 @@ const Dashboard = () => {
       <div className='w-[50%]  h-screen bg-white flex flex-col items-center'>
         <div className='w-[75%] bg-secondary h-[80px] mt-14 rounded-full flex items-center px-14'>
           <div><img src={Avatar} width={60} height={60} /></div>
-          <div className='ml-6'>
+          <div className='ml-6 mr-auto'>
             <h3 className='text-lg'>Alexander</h3>
             <p className='text-sm font-light text-gray-600'>online</p>
           </div>
-          <div></div>
+          <div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" stroke-width="2"> 
+          <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2c-8.072 -.49 -14.51 -6.928 -15 -15a2 2 0 0 1 2 -2"></path> 
+          <path d="M15 5h6"></path> <path d="M18.5 7.5l2.5 -2.5l-2.5 -2.5"></path> </svg> 
+          </div>
           
         </div>
       </div>
