@@ -35,9 +35,10 @@ const Form = ({
       console.log('data:>>',resData);
       if(resData.token){
         localStorage.setItem('user:token',resData.token)
-        localStorage.setItem('user:detail',resData.user)
+        localStorage.setItem('user:detail',JSON.stringify(resData.user));
         navigate('/')
       }
+     
       
     }
    

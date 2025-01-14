@@ -1,3 +1,4 @@
+
 import Avatar from '../../assets/avatar.png'
 import Input from '../../components/Input/index.js'
 
@@ -39,13 +40,15 @@ const Dashboard = () => {
       img:Avatar
     },
   ]
+
+ 
   return (
     <div className='w-screen flex'>
       <div className='w-[25%] h-screen bg-secondary'>
         <div className='flex items-center my-8 mx-14'>
             <div className='border border-primary p-[2px] rounded-full'><img src={Avatar} width={75} height={75} /></div>
             <div className='ml-8'>
-                <h3 className='text-2xl'>Tutorials Dev</h3>
+                <h3 className='text-2xl'>tut</h3>
                 <p className='text-lg font-light'>My Account</p>
             </div>
         </div>
