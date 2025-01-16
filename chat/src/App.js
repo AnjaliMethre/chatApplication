@@ -16,6 +16,7 @@ const ProtectedRoute = ({children, auth=false})=>{
     return children
 }
 
+
 function App() {
   return (
     <Routes>
@@ -38,5 +39,6 @@ function App() {
    
   );
 }
+
 
 export default App;

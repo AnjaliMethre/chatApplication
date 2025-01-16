@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from 'react'
 import Avatar from '../../assets/avatar.png'
 import Input from '../../components/Input/index.js'
 
@@ -41,14 +42,32 @@ const Dashboard = () => {
     },
   ]
 
- 
+  useEffect(()=>{
+    const loggedInUser=JSON.parse(localStorage.getItem('user:detail'))
+    const fetchConversations = async()=>{
+      const res = await fetch(`http://localhost:8000/api/conversations/${loggedInUser?.id}`,{
+        method:'GET',
+        headers:{
+          'Content-Type':'application/json',
+        }
+      });
+      const resData = await res.json()
+      setConversations(resData)
+    }
+    fetchConversations()
+  },[])
+
+  const [user,setUser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+  const [conversations, setConversations]=useState([])
+  console.log('user :>>',user);
+  console.log('conversations :>> ', conversations);
   return (
     <div className='w-screen flex'>
       <div className='w-[25%] h-screen bg-secondary'>
         <div className='flex items-center my-8 mx-14'>
             <div className='border border-primary p-[2px] rounded-full'><img src={Avatar} width={75} height={75} /></div>
             <div className='ml-8'>
-                <h3 className='text-2xl'>tut</h3>
+                <h3 className='text-2xl'>{user?.fullName}</h3>
                 <p className='text-lg font-light'>My Account</p>
             </div>
         </div>
@@ -57,14 +76,14 @@ const Dashboard = () => {
           <div className='text-primary text-lg'>Messages</div>
           <div>
             {
-              contacts.map(({name,status,img})=>{
+              conversations.map(({conversationId, user})=>{
                 return(
                   <div className='flex  items-center py-8 border-b border-b-gray-300'>
                     <div className='cursor-pointer flex items-center'>
-                    <div><img src={img} width={60} height={60}/></div>
+                    <div><img src={Avatar} className="w-[60px] h-[60px] rounded-full p-[2px] border border-primary"/></div>
                     <div className='ml-6'>
-                      <h3 className='text-lg font-semibold'>{name}</h3>
-                      <p className='text-sm font-light text-gray-600'>{status}</p>
+                      <h3 className='text-lg font-semibold'>{user?.fullName}</h3>
+                      <p className='text-sm font-light text-gray-600'>{user?.email}</p>
                     </div>
                     </div>
                   </div>
@@ -139,5 +158,6 @@ const Dashboard = () => {
     </div>
   )
 }
+
 
 export default Dashboard
