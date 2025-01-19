@@ -33,6 +33,7 @@ app.get('/', (req, res) => {
 app.post('/api/register', async (req, res, next) => {
     try {
         const { fullName, email, password } = req.body;
+       
         if (!fullName || !email || !password) {
             return res.status(400).send('Please fill all required fields');
         }
@@ -97,14 +98,14 @@ app.post('/api/login', async (req, res,next) => {
             });
         });
     } catch (error) {
-        console.error('Error during login:', error);
-        return res.status(500).send('Internal Server Error');
+       console.error('Error during login:', error);
+       return res.status(500).send('Internal Server Error');
     }
 });
 
 
 
-app.post('/api/conversations',async (req, res)=>{
+app.post('/api/conversation',async (req, res)=>{
     try{
         const{senderId, receiverId}=req.body;
         const newConversation=new Conversations({ members:[senderId,receiverId]});
@@ -116,6 +117,7 @@ app.post('/api/conversations',async (req, res)=>{
     }
 })
 
+
 app.get('/api/conversations/:userId', async (req, res)=>{
     try{
         const userId=req.params.userId;
@@ -123,24 +125,28 @@ app.get('/api/conversations/:userId', async (req, res)=>{
         const conversationUserData=Promise.all(conversations.map(async (conversation)=>{
             const receiverId=conversation.members.find((member)=>member !== userId);
             const user = await Users.findById(receiverId);
-            return {user: {email:user.email, fullName:user.fullName}, conversationId: conversation._id}
+            return {user: {receiverId: user._id, email:user.email, fullName:user.fullName}, conversationId: conversation._id}
+            
         }))
         
         res.status(200).json(await conversationUserData);
+    
     }
     catch(error){
         console.log(error,'Error')
     }
 })
 
+
+
 app.post('/api/message',async(req,res)=>{
     try{
-        const {conversationId, senderId, message, receiverId=''}=req.body;
+        const {conversationId, senderId, message, receiverId}=req.body;
         if(!senderId || !message) return res.status(400).send('please fill all required fields')
         if(!conversationId && receiverId){
-            const newConversation=new Conversations({members:[senderId, receiverId]});
+            const newConversation=new Conversations({ members: [senderId, receiverId]});
             await newConversation.save();
-            const newMessage=new Messages({conversationId: newConversation._id, senderId, message});
+            const newMessage=new Messages({ conversationId: newConversation._id, senderId, message});
             await newMessage.save();
             return res.status(200).send('Message sent successfully');
         }
@@ -156,34 +162,43 @@ app.post('/api/message',async(req,res)=>{
     }
 })
 
-app.get('/api/message/:conversationId',async(req,res)=>{
+
+app.get('/api/message/:conversationId', async (req,res)=>{
     try{
-        const conversationId=req.params.conversationId;
-        if(!conversationId=='new') return res.status(200).json([]);
-        const messages=await Messages.find({conversationId});
-        const messageUserData=Promise.all(messages.map(async(message)=>{
-         const user=await Users.findById(message.senderId);
-         return {user: {email:user.email, fullName:user.fullName}, message:message.message}
-        }));
+        const conversationId = req.params.conversationId;
+        if(conversationId === 'new') return res.status(200).json([]);
+         const messages=await Messages.find({conversationId});
+         const messageUserData=Promise.all(messages.map(async(message)=>{
+            const user=await Users.findById(message.senderId);
+        
+            return {user: { id: user._id, email:user.email, fullName:user.fullName}, message:message.message}
+         }));
      res.status(200).json(await messageUserData);
+    
     }
     catch(error){
         console.log('Error',error)
     }
 })
 
-app.get('/api/users',async(req, res)=>{
+
+app.get('/api/users', async (req, res)=>{
     try{
         const users=await Users.find();
         const usersData=Promise.all(users.map(async (user)=>{
-            return {user:{email:user.email, fullName:user.fullName }, userId:user._id }
+           return {user:{email:user.email, fullName:user.fullName }, userId:user._id }
+           
         }))
         res.status(200).json(await usersData);
+    
     }
     catch(error){
         console.log('Error',error)
     }
 })
+
+
+
 
 app.listen(port, ()=>{
     console.log('listening on port ' +port);
