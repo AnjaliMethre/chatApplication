@@ -15,10 +15,10 @@ const Form = ({
     password:''
   })
 
- const navigate=useNavigate()
+ const navigate = useNavigate()
 
   const handleSubmit=async(e)=>{
-    console.log('data:>>',data);
+   // console.log('data:>>',data);
     e.preventDefault()
     const res=await fetch(`http://localhost:8000/api/${isSignInPage ? 'login' : 'register'}`, {
       method:'POST',
@@ -27,7 +27,7 @@ const Form = ({
       },
       body:JSON.stringify(data)
     })
-   // const resData=await res.json()
+    //const resData=await res.json()
     //console.log('data:>>',resData);
 
     if(res.status===400){
