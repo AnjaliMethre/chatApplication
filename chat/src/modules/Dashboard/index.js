@@ -1,7 +1,9 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Avatar from '../../assets/avatar.png'
-import Input from '../../components/Input/index.js'
+import img1 from '../../assets/img1.webp'
+import Input from '../../components/Input'
+import {io} from 'socket.io-client'
 
 const Dashboard = () => {
   
@@ -11,10 +13,30 @@ const Dashboard = () => {
   const [messages, setMessages] = useState({})
   const [message, setMessage] = useState('')
   const [users, setUsers]=useState([])
-  console.log('user :>>', user);
-  console.log('conversations :>> ', conversations);
-  console.log('messages :>> ', messages);
-  console.log('users :>> ', users);
+  const [socket, setSocket] = useState(null)
+  const messageRef=useRef(null)
+ 
+useEffect(()=>{
+  setSocket(io('http://localhost:8080'))
+},[])
+
+
+useEffect(()=>{
+  socket?.emit('addUSer',user?.id);
+  socket?.on('getUsers',users=>{
+   console.log('activeUsers:>>',users);
+  })
+  socket?.on('getMessage',data=>{
+    setMessages(prev=>({
+      ...prev,
+      messages:[...prev.messages, { user:data.user, message:data.message}]
+    }))
+  })
+},[socket])
+
+useEffect(()=>{
+  messageRef?.current?.scrollIntoView({behavior:'smooth'})
+},[messages?.messages])
 
 
   useEffect(()=>{
@@ -64,7 +86,12 @@ const Dashboard = () => {
   }
   
     const sendMessage = async(e)=>{
-      console.log('SendMessage :>>', message,messages?.conversationId, user?.id, messages?.receiver?.receiverId);
+      socket?.emit('sendMessage',{
+        senderId:user?.id,
+        receiverId:messages?.receiver?.receiverId,
+        message,
+        conversationId:messages?.conversationId
+      });
       const res=await fetch(`http://localhost:8000/api/message`,{
       method:'POST',
       headers:{
@@ -77,12 +104,11 @@ const Dashboard = () => {
         receiverId:messages?.receiver?.receiverId
       })
     });
-  
-  setMessage('')
+   setMessage('');
   }
   return (
     <div className='w-screen flex'>
-      <div className='w-[25%] h-screen bg-secondary'>
+      <div className='w-[25%] h-screen bg-secondary overflow-scroll'>
         <div className='flex items-center my-8 mx-14'>
             <div>
               <img src={Avatar} width={75} height={75} className='border border-primary p-[2px] rounded-full'/></div>
@@ -96,7 +122,7 @@ const Dashboard = () => {
   <div className='text-primary text-lg'>Messages</div>
   <div>
     {
-      conversations.length > 0
+      conversations.length > 0 
         ? [...new Map(conversations.map(item => [item.user.id, item])).values()]
             .map(({ conversationId, user }) => (
               <div
@@ -109,7 +135,7 @@ const Dashboard = () => {
                 >
                   <div>
                     <img
-                      src={Avatar}
+                      src={img1}
                       className='w-[60px] h-[60px] rounded-full p-[2px] border border-primary'
                     />
                   </div>
@@ -122,7 +148,7 @@ const Dashboard = () => {
                 </div>
               </div>
             ))
-        : <div className='text-center text-lg font-semibold mt-24'>No conversations</div>
+        : <div className='text-center text-lg font-semibold mt-24'>No Conversations</div>
     }
   </div>
 </div>
@@ -155,9 +181,13 @@ const Dashboard = () => {
                 messages?.messages?.length > 0 ?
                 messages.messages.map(({message, user : { id } = {} }) => {
                   return(
+                    <>
                     <div className={`max-w-[40%] rounded-b-xl  p-4 mb-6 ${ id === user?.id ? 'bg-primary  text-white rounded-tr-xl ml-auto':'bg-secondary rounded-tr-xl' }`}>
                      {message}
                     </div>
+                    <div ref={messageRef}></div>
+                    </>
+                    
                   )
                   
                 }): <div className='text-center text-lg font-semibold my-24'>No 
@@ -191,7 +221,7 @@ const Dashboard = () => {
           }
         </div>
       
-      <div className='w-[25%]  h-screen bg-light px-8 py-16'>
+      <div className='w-[25%]  h-screen bg-light px-8 py-16 overflow-scroll'>
       <div className='text-primary text-lg'>People</div>
       <div>
         {
